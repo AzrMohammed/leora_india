@@ -20,6 +20,9 @@ TEMPLATES_DIR_GEN = os.path.join(APP_DIR_GEN, "template")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+
 parent_dir = os.path.abspath(os.path.dirname(__file__) + '/..')
 MEDIA_ROOT = os.path.join(parent_dir, 'media/')
 MEDIA_URL = '/media/'
