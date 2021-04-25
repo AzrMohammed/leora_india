@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR_GEN = os.path.join(BASE_DIR, "GEN")
 TEMPLATES_DIR_GEN = os.path.join(APP_DIR_GEN, "template")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+# STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
@@ -35,6 +35,16 @@ SECRET_KEY = '(vmbp7%!xguw1m^z)z9vn4^68u4x&st!0%w3o=u54%wc&ec!d9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+
+# STATIC_ROOT = "app-root/repo/wsgi/static"
+#
+# STATIC_URL = '/static/'
+#
+# STATICFILES_DIRS = (
+#     ('assets', 'app-root/repo/wsgi/openshift/static'),
+#
+#     )
 
 ALLOWED_HOSTS = ['*']
     # '206.189.129.128', '192.168.0.104','127.0.0.1','192.168.0.106','192.168.0.100', '192.168.43.69']
@@ -176,7 +186,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS =[
-STATIC_DIR,
+# STATIC_DIR,
 ]
 
 LOGIN_URL = '/GEN/user_login'
