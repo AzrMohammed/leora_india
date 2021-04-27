@@ -909,8 +909,8 @@ class BaGetOrderDetailswithActions(APIView):
         api_lang = get_api_language_preference(received_json_data)
 
 
-        print("reee")
-        print(received_json_data)
+        # print("reee")
+        # print(received_json_data)
 
         # phone = received_json_data["user_phone"]
         # user_p = UserProfileInfo.objects.get(phone_primary=phone)
@@ -1700,38 +1700,6 @@ class CreateOrder(APIView):
 
                         print(serializer_current_process_model.errors)
 
-            # for e_order_item_data_set in order_item_data_set_arr:
-            #
-            #     order_item_data_set_normalized = {}
-            #     order_item_data_set_normalized["order_item_id"] = support_db.unique_string_generator(OrderItem, "order_item_id")
-            #     order_item_data_set_normalized["order"] = order_base_id
-            #     order_item_data_set_normalized["status_note"] = "."
-            #     order_item_data_set_normalized["item_quantity"] = e_order_item_data_set["quantity"]
-            #
-            #     servisable_product_q = db_operations_support.get_db_object_g_last(BranchServisableProduct, {
-            #         "id": e_order_item_data_set["servisable_product_id"]})
-            #
-            #     order_item_data_set_normalized["servisable_product"] = servisable_product_q.id
-            #     order_item_data_set_normalized["product"] = servisable_product_q.product.id
-            #     order_item_data_set_normalized["item_name"] = servisable_product_q.product.name
-            #     order_item_data_set_normalized["status_note"] = "."
-            #     order_item_data_set_normalized["brand_branch"] = servisable_product_q.branch.id
-            #     order_item_data_set_normalized["brand"] = servisable_product_q.branch.brand.id
-            #
-            #     measurementunit_q = db_operations_support.get_db_object_g_last(ItemMeasuementUnit, {
-            #         "name": e_order_item_data_set["uom"]})
-            #
-            #     order_item_data_set_normalized["measurement_unit"] = measurementunit_q.id
-            #
-            #     proceed_current_process_model, serializer_current_process_model = support_serializer_submit.validate_save_instance(
-            #         OrderItem, order_item_data_set_normalized)
-            #
-            #     if proceed_current_process_model == False:
-            #         print("item save error")
-            #
-            #
-            #         print(serializer_current_process_model.errors)
-
         if order_base_id != -1:
             update_order_request_to_branch_user(order_base_id)
         return proceed_current_process_model, {"title":get_display_translated_value(value_constant.KEY_D_BOOKING_FAILED,api_lang), "message":get_display_translated_value(value_constant.KEY_D_PLEASE_TRY_AFTER_SOME_TIME,api_lang)}
@@ -1748,6 +1716,7 @@ class CreateOrder(APIView):
         brand_id = order_data_set["brand_id"]
         branch_id = order_data_set["branch_id"]
 
+
         schedule_requested_date_time = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
 
         schedule_requested_day_of_week = schedule_requested_date_time.isoweekday()
@@ -1758,7 +1727,6 @@ class CreateOrder(APIView):
         if(servicable_criteria_q.count() == 0):
             proceed_current_process_model = False
             payload = {"title":get_display_translated_value(value_constant.KEY_D_BOOKING_FAILED,api_lang), "message":get_display_translated_value(value_constant.KEY_D_BRANCH_OPERATIONAL_SELECTE_TIME,api_lang)}
-
 
 
         if proceed_current_process_model:

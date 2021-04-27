@@ -8,6 +8,10 @@ from django.template.defaultfilters import slugify
 
 from GEN import GEN_Constants
 
+from datetime import datetime, timedelta
+from django.db.models import Sum
+
+
 # from django.contrib.postgres.fields import ArrayField
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -82,8 +86,26 @@ class UserLocationLog(models.Model):
     def __str__(self):
         return str(self.user.username)
 
+
+class BrandCoreCategory(models.Model):
+    name = models.CharField(max_length=250, default=dbconstants.VAL_STR_DEFAULT, null=True)
+    code = models.CharField(max_length=100, default=dbconstants.VAL_STR_DEFAULT, null=True)
+    pic = models.ImageField(upload_to='brand_support', blank=True)
+    status = models.CharField(max_length=2, choices=dbconstants.STATUS,  default=dbconstants.STATUS_ACTIVE)
+    # capacity = models.CharField(max_length=2, choices=dbconstants.STATUS,  default=dbconstants.STATUS_ACTIVE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_available = models.BooleanField(default=True)
+    is_online = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.user)
+
+
+
 class BrandBasicInfo(models.Model):
 
+    brand_core_category = models.ForeignKey(BrandCoreCategory, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=250, default=dbconstants.VAL_STR_DEFAULT, null=True)
     code = models.CharField(max_length=100, default=dbconstants.VAL_STR_DEFAULT, null=True)
     description = models.TextField(default=dbconstants.VAL_STR_DEFAULT, null=True, blank=True)
@@ -139,6 +161,90 @@ class BrandBranchBasicInfo(models.Model):
 
     def get_branch_display_details(self):
         return  { "branch_title":self.name, "branch_address":self.description}
+
+    # time input : "%Y-%m-%d %H:%M:%S"
+    def get_slot_details(self, time_str):
+
+        branch_id = self.id
+        store_capacity = self.store_capacity
+
+        schedule_requested_date_time = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+
+        schedule_requested_day_of_week = schedule_requested_date_time.isoweekday()
+        schedule_requested_time = schedule_requested_date_time.time()
+
+        servicable_criteria_q = ServisableDaysCriteria.objects.filter(branch__id = branch_id, day_of_week = schedule_requested_day_of_week, is_online=True, is_available =True, service_start_time__lte=schedule_requested_time, service_end_time__gte=schedule_requested_time)
+
+        date_rec = schedule_requested_date_time.strftime("%Y-%m-%d ")
+        date_time = schedule_requested_date_time.strftime("%m/%d/%Y, %H:%M:%S")
+
+        schedule_requested_hour_str = schedule_requested_date_time.strftime("%H")
+
+        filter_end_time_str = date_rec + schedule_requested_hour_str + ":59:59"
+        filter_start_time_str = date_rec + schedule_requested_hour_str + ":00:00"
+
+        filter_start_time = datetime.strptime(filter_start_time_str, "%Y-%m-%d %H:%M:%S")
+        filter_end_time = datetime.strptime(filter_end_time_str, "%Y-%m-%d %H:%M:%S")
+
+        # 3 PM
+        # start_time_text = filter_start_time.strftime('%I:%M:%S %p')
+        # end_time_text = filter_end_time.strftime('%I:%M:%S %p')
+
+        start_time_text = filter_start_time.strftime('%I:%M %p')
+        end_time_text = filter_end_time.strftime('%I:%M %p')
+
+        slot_block_text = start_time_text
+
+        is_working_day = True
+
+        if(servicable_criteria_q.count() == 0):
+            is_working_day = False
+
+
+
+
+        if is_working_day:
+
+
+            Orders_q = Order.objects.filter(branch__id = branch_id,  order_accepted =True, schedule_requested_time__range=(filter_start_time, filter_end_time))
+            Orders_q_data = Orders_q.values_list('id', flat=True)
+
+            print(Orders_q_data)
+            # Orders_q_data = [89, 92]
+
+            filled_obj_data = OrderItem.objects.filter(order__id__in = Orders_q_data).aggregate(Sum('item_quantity'))
+            print("filledcapacity")
+            print(store_capacity)
+            print(filled_obj_data)
+            # {'item_quantity__sum': 6}
+
+            filled_capacity = filled_obj_data["item_quantity__sum"]
+
+            if(filled_capacity == None):
+                filled_capacity = 0
+
+            available_capacity = store_capacity - filled_capacity
+
+            if available_capacity <=0:
+                available_capacity = 0
+
+            if available_capacity > 0:
+                return {"slot_display_text": str(available_capacity)+" open slots available at selected time block ("+slot_block_text+")",
+                        "slot_status_type": 1, "slot_total": store_capacity, "slot_filled": filled_capacity, "slot_open": available_capacity,
+                        "slot_block": slot_block_text}
+            else:
+                return {"slot_display_text": str(filled_capacity) + " slots are filled at selected time block ("+slot_block_text+")",
+                        "slot_status_type": 0, "slot_total": store_capacity, "slot_filled": filled_capacity, "slot_open": available_capacity,
+                        "slot_block": slot_block_text}
+
+
+        else:
+            return {"slot_display_text": "Branch not servisable at selected date and time",
+                    "slot_status_type": 0, "slot_total": 0, "slot_filled": 0, "slot_open": 0,
+                    "slot_block": slot_block_text}
+
+
+        return {"slot_display_text":"5 open slots available at selected time block (2 PM to 3PM)", "slot_status_type":1, "slot_total":100, "slot_filled":95, "slot_open":5, "slot_block":"2 PM to 3PM"}
 
     def __str__(self):
         return str(self.name) + " | " + str(self.id)

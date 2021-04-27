@@ -190,7 +190,15 @@ class OrderDetail01SerializerWithActions(serializers.ModelSerializer):
 
 
     def get_slot_details(self, obj):
-        return {"slot_display_text":"5 open slots available at selected time block (2 PM to 3PM)", "slot_status_type":1, "slot_total":100, 'slot_filled':95, 'slot_open':5, "slot_block":"2 PM to 3PM"}
+        # received_data_str = str(obj.schedule_requested_time)
+
+        received_data_str = obj.schedule_requested_time.strftime("%Y-%m-%d %H:%M:%S")
+        print("received_data_str")
+
+        print(received_data_str)
+        # received_data_str
+        return obj.branch.get_slot_details(received_data_str)
+            # {"slot_display_text":"5 open slots available at selected time block (2 PM to 3PM)", "slot_status_type":1, "slot_total":100, 'slot_filled':95, 'slot_open':5, "slot_block":"2 PM to 3PM"}
 
     def get_user_details(self, obj):
         return {"name":obj.user_customer.user.first_name, 'age':obj.user_customer.age, "gender":obj.user_customer.gender}
