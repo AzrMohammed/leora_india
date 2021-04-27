@@ -8,6 +8,7 @@ from GEN.models import UserProfileInfo, ItemMeasuementUnit, Order, ProductCatego
 # Register your models here.
 
 
+admin.site.register(BrandCoreCategory)
 admin.site.register(BrandBasicInfo)
 admin.site.register(ServisableDaysCriteria)
 admin.site.register(UserProfileInfo)
