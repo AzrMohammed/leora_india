@@ -3,7 +3,7 @@ from django.contrib import admin
 from GEN.models import UserProfileInfo, ItemMeasuementUnit, Order, ProductCategory, ProductBase, Product, OrderItem, \
     OrderLog, OrderItemLog, C19SymptomSet, UserLocationLog, UserHealthProfile, OrderStatus, BrandBranchBasicInfo, \
     BranchServisableProduct, BranchServisableProductBase, BranchServisableCategory, AppUserType, BrandBasicInfo, \
-    ServisableDaysCriteria
+    ServisableDaysCriteria, BrandCoreCategory
 
 # Register your models here.
 
